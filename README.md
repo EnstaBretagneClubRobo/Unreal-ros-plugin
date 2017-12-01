@@ -35,33 +35,63 @@ source code from GitHub (4.9 or higher) is required for this.
 After compiling the plug-in, you have to **enable it** in Unreal Editor's plug-in
 browser.
 
+Perform the following steps to test the components:
+- Modify the ROSSerialClientComponent.cpp file and its header to create the advertisers and the publishers that you need
+- Compile
+- Drag a Sphere from the Basic Shapes tab into your level
+- Select the actor and click the Add Component button in the Details panel
+- Add the ROSSerialClientcomponent
+- Initialize Rosserial with the IP adress of your RosMaster in your actor blueprint thanks to the function **InitROS**
+- You can use the example functions **PublishTransformMsg**, **PublishCartNavStateMsg**, **OnNewYawCommand**, **OnNewVelocityCommand** or create your own functions in your actor's blueprint.
+
+You can also find a quick procedure to create your own ROS messages in the file [AddCustomMsg.txt](https://github.com/Camille78/Unreal-ros-plugin/blob/master/AddCustomMsg.txt). 
+
 ## Example
 
-You can use the repositories SimpleROSProjectForUnreal and SimpleUnrealProjectForROS which are an Unreal Project and a ROS Project using this plugin to exchange messages. This will help you to understand how the plugin can be used.
+If you need more help, you can take a look at the repositories [SimpleROSProjectForUnreal](https://github.com/Camille78/SimpleROSProjectForUnreal) and [SimpleUnrealProjectForROS](https://github.com/Camille78/SimpleUnrealProjectForROS) which are an Unreal Project and a ROS Project using this plugin to exchange messages. This will help you to understand how the plugin can be used.
 - Download the two repositories
 - Open the Unreal Project in Unreal Engine 
-- Launch the ROS node : roslaunch unrealROS UnrealSimu.launch
+- Build and launch the ROS node : 
+
+		catkin build
+		roslaunch unrealROS UnrealSimu.launch
+	
+- Set the IP adress of your ROSMaster in the RosCube Blueprint
 - Play the scene in Unreal
 - The cube should move thanks to speed and yaw commands sent from the ROS node "thrusterControllerNode" (Note don't panic if the cube movement is awkward, the PID controller in the trhusterControllerNode is not correctly set)
 
-- Everything you should pay attention for is located in the ROScube blueprint, in the files ROSSerialClientComponent.cpp and its header. You can also find a quick procedure to create your own ROS messages in the file "AddCustomMsg" located in the Unreal project. 
+- Everything you should pay attention for is located in the ROScube blueprint, in the files ROSSerialClientComponent.cpp and its header. You can also find a quick procedure to create your own ROS messages in the file [AddCustomMsg.txt](https://github.com/Camille78/Unreal-ros-plugin/blob/master/AddCustomMsg.txt). 
 
 
 
 ## Known Errors :
-Error	C2059	syntax error: 'constant'	plugins\unreal-ros-plugin\thirdparty\ros_lib\rosserial_msgs\Log.h	22	
+- **Error	C2059	syntax error: 'constant'	plugins\unreal-ros-plugin\thirdparty\ros_lib\rosserial_msgs\Log.h	22**
 
-Some macros have been declared in Rosserial and in Unreal with the same name 
+Some macros have been declared in Rosserial and in Unreal with the same name.
+
 One way to correct this :
-In plugins\unreal-ros-plugin\thirdparty\ros_lib\rosserial_msgs\Log.h    line 22
-	replace    enum { ERROR = 3 };
-	by	   enum { ROS_ERROR = 3 };
+
+In plugins\unreal-ros-plugin\thirdparty\ros_lib\rosserial_msgs\Log.h    **line 22**
+
+Replace
+
+	enum { ERROR = 3 };
+	
+by
+
+	enum { ROS_ERROR = 3 };
 
 
-Then in \plugins\unreal-ros-plugin\thirdparty\ros_lib\ros\node_handle.h	line 478
-    replace   void logerror(const char*msg){
-        	log(rosserial_msgs::Log::ERROR, msg);
-      		}
-    by 	      void logerror(const char*msg){
-        	log(rosserial_msgs::Log::ROS_ERROR, msg);
-      		}
+Then in \plugins\unreal-ros-plugin\thirdparty\ros_lib\ros\node_handle.h	**line 478**
+
+Replace
+	
+	void logerror(const char*msg){
+        	      log(rosserial_msgs::Log::ERROR, msg);
+	}
+
+by
+
+	void logerror(const char*msg){
+        	      log(rosserial_msgs::Log::ROS_ERROR, msg);
+      	}
